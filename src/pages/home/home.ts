@@ -65,7 +65,7 @@ export class HomePage {
     this.navCtrl.push(AdddataPage);
   }
   editData(rowid){
-    this.navCtrl.push(EditdataPage{
+    this.navCtrl.push(EditdataPage,{
       rowid:rowid
     });
   }

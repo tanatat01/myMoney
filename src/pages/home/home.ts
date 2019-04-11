@@ -75,17 +75,41 @@ export class HomePage {
             if(res.rows.length>0){
               this.totalIncome = parseInt(res.rows.item(0).totalIncome);
               this.balance = this.totalIncome-this.totalExpense;
+              this.toast.show("Income", '5000', 'center').subscribe(
+                toast =>{
+                  console.log(toast)
+                }
+              );
             }
           })
-          .catch(e => console.log(e));
-          db.executeSql('SELECT SUM(amount) AS totalExpense FROM expense WHERE type="expense"',[])
+          .catch(e =>{
+            console.log(e);
+            this.toast.show(e.message, '5000', 'center').subscribe(
+              toast =>{
+                console.log(toast)
+              }
+            );
+          });
+          db.executeSql('SELECT SUM(amount) AS totalExpense FROM expense WHERE type="Expense"',[])
           .then(res =>{
             if(res.rows.length>0){
               this.totalExpense=parseInt(res.rows.item(0).totalExpense);
               this.balance = this.totalIncome-this.totalExpense;
             }
+            this.toast.show("Expense", '5000', 'center').subscribe(
+              toast =>{
+                console.log(toast)
+              }
+            );
           })
-    }).catch(e => console.log(e));
+    }).catch(e =>{
+      console.log(e);
+      this.toast.show(e.message, '5000', 'center').subscribe(
+        toast =>{
+          console.log(toast)
+        }
+      );
+    });
   }
 
   //ฟังกฺชั่นสำหรับการเรียกเพจ AdddataPage

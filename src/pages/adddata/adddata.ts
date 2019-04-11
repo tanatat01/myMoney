@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { IonicPage, NavController, NavParams } from 'ionic-angular';
-import {SQLite, SQLiteObject} from '@ionic-native/sqlite/ngx';
-import {Toast} from '@ionic-native/toast/ngx';
+import {SQLite, SQLiteObject} from '@ionic-native/sqlite';
+import {Toast} from '@ionic-native/toast';
 
 /**
  * Generated class for the AdddataPage page.
@@ -40,7 +40,7 @@ export class AdddataPage {
       })
       .catch(e=>{
             console.log(e);
-            this.toast.show(e,'5000','center').subscribe(
+            this.toast.show(e.message,'5000','center').subscribe(
               toast => {
                 console.log(toast);
               }
@@ -48,7 +48,7 @@ export class AdddataPage {
     });
     }).catch(e=>{
       console.log(e);
-      this.toast.show(e,'5000','center').subscribe(
+      this.toast.show(e.message,'5000','center').subscribe(
         toast => {
           console.log(toast);
           }

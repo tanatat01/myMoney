@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 import { NavController } from 'ionic-angular';
-import {SQLite, SQLiteObject} from '@ionic-native/sqlite/ngx';
-import {Toast} from '@ionic-native/toast/ngx';
-import { AdddataPage} from '../adddata/adddata';
-import { EditdataPage} from '../editdata/editdata';
-
+import {SQLite, SQLiteObject} from '@ionic-native/sqlite';
+//import {Toast} from '@ionic-native/toast';
+import {AdddataPage} from '../adddata/adddata';
+import {EditdataPage} from '../editdata/editdata';
+import { Toast } from '@ionic-native/toast';
 
 @Component({
   selector: 'page-home',
@@ -15,7 +15,7 @@ export class HomePage {
   totalIncome = 0;
   totalExpense = 0;
   balance = 0;
-  constructor(public navCtrl: NavController,public sqlite:SQLite) {
+  constructor(public navCtrl: NavController,public sqlite:SQLite,  public toast:Toast) {
 
   }
 
@@ -23,17 +23,36 @@ export class HomePage {
     this.getData();
   }
 
+  ionViewWillEnter(){
+    this.getData();
+  }
+
   getData(){
     this.sqlite.create({
       name: 'ionicdb.db',location: 'default'
     }).then((db: SQLiteObject)=>{
-      db.executeSql('CREATE TABLE IF NOT EXISTS expnse(rowid INTEGER PRIMARY KEY, date TEXT, type TEXT, description TEXT, amount INT)',)
-      .then(res => console.log('Executed SQL'))
-      .catch(e => console.log(e));
-        db.executeSql('SELECT * FROM expense ORDER BY rowid DESC',)
+      db.executeSql('CREATE TABLE IF NOT EXISTS expense(rowid INTEGER PRIMARY KEY, date TEXT, type TEXT, description TEXT, amount INTEGER)',[])
+      .then(res => {
+        console.log(res);
+        this.toast.show('executed', '5000', 'center').subscribe(
+          toast =>{
+            console.log(toast)
+          }
+        );
+      })
+      .catch(e =>{
+        console.log(e);
+        this.toast.show(e.message, '5000', 'center').subscribe(
+          toast =>{
+            console.log(toast)
+          }
+        );
+      });
+        db.executeSql('SELECT * FROM expense ORDER BY rowid DESC',[])
         .then(res => {
           this.expenses = [];
           for(var i=0; i<res.rows.length; i++){
+            //อ่านค่าทุกแถวมาใส่ใน object
             this.expenses.push({
               rowid:res.rows.item(i).rowid,
               date:res.rows.item(i).date,
@@ -43,8 +62,15 @@ export class HomePage {
             })
           }
         })
-        .catch(e => console.log(e));
-        db.executeSql('SELECT SUM(amount) AS totalIncome FROM expense WHERE type="Income"',)
+        .catch(e =>{
+          console.log(e);
+          this.toast.show(e.message, '5000', 'center').subscribe(
+            toast =>{
+              console.log(toast)
+            }
+          );
+        });
+        db.executeSql('SELECT SUM(amount) AS totalIncome FROM expense WHERE type="Income"',[])
           .then(res => {
             if(res.rows.length>0){
               this.totalIncome = parseInt(res.rows.item(0).totalIncome);
@@ -52,7 +78,7 @@ export class HomePage {
             }
           })
           .catch(e => console.log(e));
-          db.executeSql('SELECT SUM(amount) AS totalExpense FROM expense WHERE type="expense"',)
+          db.executeSql('SELECT SUM(amount) AS totalExpense FROM expense WHERE type="expense"',[])
           .then(res =>{
             if(res.rows.length>0){
               this.totalExpense=parseInt(res.rows.item(0).totalExpense);
@@ -61,25 +87,28 @@ export class HomePage {
           })
     }).catch(e => console.log(e));
   }
+
+  //ฟังกฺชั่นสำหรับการเรียกเพจ AdddataPage
   addData(){
     this.navCtrl.push(AdddataPage);
   }
+
+  //ฟังก์ชันสำหรับเรียกเพจ EditdataPage ขึ้นมาแสดงผล ดดยแนบตัวแปร rowid ไปด้วย
   editData(rowid){
-    this.navCtrl.push(EditdataPage,{
-      rowid:rowid
-    });
+    this.navCtrl.push(EditdataPage,{rowid:rowid});
   }
-deleteData(rowid){
-  this.sqlite.create({
-    name: 'ionicdb.db',
-    location: 'defaulf'
-  }).then((db: SQLiteObject)=>{
-    db.executeSql('DELETE FROM expensee WHERE rowid=?',[rowid])
-  .then(res => {
-        console.log(res);
-        this.getData();
-  })
-  .catch(e=> console.log(e));
-  }).catch(e=> console.log(e));
-}
+
+  //ฟังก์ชั่นสำหรับลบข้อมูลโดยรับค่า rowid มาแล้วทำการลบจากฐานข้อมูล
+  deleteData(rowid){
+    this.sqlite.create({
+      name: 'ionicdb.db', location:'default'
+    }).then((db: SQLiteObject) => {
+        db.executeSql('DELETE FROM expense WHERE rowid=?', [rowid])
+        .then(res => {
+          console.log(res);
+          this.getData();
+        })
+        .catch(e => console.log(e));
+    }).catch(e => console.log(e));
+  }
 }

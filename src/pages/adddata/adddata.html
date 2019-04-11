@@ -6,7 +6,8 @@
 
 <ion-content padding>
   <h2>เพิ่มข้อมูล</h2>
-  <form (ngSumit)="saveData()">
+  <form
+   (ngSubmit)="saveData()">
     <ion-item>
       <ion-label>วันที่</ion-label>
       <ion-datetime displayFormat="MM/DD/YYYY"
